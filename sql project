@@ -1,0 +1,76 @@
+/* Exploratory Data Analysis in SQL
+Skills used: joins, Common Table Expressions (CTEs), casting, case statements, summarizing and aggregating numeric data, 
+correlation, truncating, and working with dates, times, and strings.
+*/
+
+CREATE TABLE info
+(
+    product_name VARCHAR(100),
+    product_id VARCHAR(11) PRIMARY KEY,
+    description VARCHAR(700)
+);
+CREATE TABLE finance
+(
+    product_id VARCHAR(11) PRIMARY KEY,
+    listing_price FLOAT,
+    sale_price FLOAT,
+    discount FLOAT,
+    revenue FLOAT
+);
+CREATE TABLE reviews
+(
+    product_id VARCHAR(11) PRIMARY KEY,
+    rating FLOAT,
+    reviews FLOAT
+);
+CREATE TABLE traffic
+(
+    product_id VARCHAR(11) PRIMARY KEY,
+    last_visited TIMESTAMP
+);
+CREATE TABLE brands
+(
+    product_id VARCHAR(11) PRIMARY KEY,
+    brand VARCHAR(7)
+);
+
+\copy info FROM 'info_v2.csv' DELIMITER ',' CSV HEADER;
+\copy finance FROM 'finance.csv' DELIMITER ',' CSV HEADER;
+\copy reviews FROM 'reviews_v2.csv' DELIMITER ',' CSV HEADER;
+
+
+\copy traffic FROM 'traffic_v3.csv' DELIMITER ',' CSV HEADER;
+\copy brands FROM 'brands_v2.csv' DELIMITER ',' CSV HEADER;
+
+/* The database, sports, contains 5 tables with product_id being the primary key for all of them. 
+The company is interested in how it can improve revenue. */
+
+---Counting missing values: number of non-missing entries for description, listing_price, and last_visited---
+
+SELECT COUNT(*) AS total_rows, 
+    COUNT(i.description) AS count_description, 
+    COUNT(f.listing_price) AS count_listing_price, 
+    COUNT(t.last_visited) AS count_last_visited 
+FROM info AS i
+INNER JOIN finance AS f
+    ON i.product_id = f.product_id
+INNER JOIN traffic AS t
+    ON t.product_id = f.product_id;
+
+/* Nike vs. Adidas listing_price */
+
+---select brand, listing_price as int, and count all products in finance, join brands on finance on product_id, filter for products with listing_price more than 0
+sort by listing_price in DESC, aggregrate results by brand and listing_price---
+
+SELECT b.brand, f.listing_price::integer, COUNT(f.*)
+FROM finance AS f
+INNER JOIN brands AS b 
+    ON f.product_id = b.product_id
+WHERE listing_price > 0
+GROUP BY b.brand, f.listing_price
+ORDER BY listing_price DESC;
+
+/* Labeling price ranges */
+
+
+
